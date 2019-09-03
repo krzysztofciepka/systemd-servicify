@@ -1,0 +1,13 @@
+
+[Unit]
+Description={description}
+After=network.target
+
+[Service]
+WorkingDirectory={workDir}
+ExecStart={nodePath} {entrypoint}
+Restart=on-failure
+User={user}
+
+[Install]
+WantedBy=multi-user.target
