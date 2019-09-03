@@ -1,18 +1,13 @@
 #!/usr/bin/env node
 
-/* eslint-disable import/no-dynamic-require */
-/* eslint-disable no-console */
-
 const program = require('commander');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-
-const template = require('./template');
+const generateTemplate = require('./template');
 const systemd = require('./systemd');
 const utils = require('./utils');
-
-const servicifyPackage = require(path.join(__dirname, 'package.json'));
+const servicifyPackage = require('./package.json');
 
 program
   .version(servicifyPackage.version, '-v, --version', 'servicify version')
@@ -23,37 +18,48 @@ program
   .option('-d, --desc <description>', 'description of systemd service')
   .parse(process.argv);
 
-
-const appPackage = require(path.join(program.dir || process.cwd(), 'package.json'));
-
 (async () => {
   try {
-    const state = {
+    const appPackage = require(path.join(program.dir || process.cwd(), 'package.json'));
+    const node = await utils.nodePath();
+
+    const config = {
       serviceName: `${program.service || appPackage.name || 'servicify-default'}.service`,
-      templateParams: {
-        nodePath: await utils.nodePath(),
+      templatePath: 'templates/forever.template',
+      params: {
+        nodePath: node,
         description: program.desc || appPackage.description || 'Auto-generated nodejs service',
         entrypoint: program.args[0] || 'index.js',
         user: program.user || os.userInfo().username,
-        workDir: process.cwd(),
+        workDir: program.dir || process.cwd(),
       },
     };
 
-    if (await systemd.serviceExists(state.serviceName)) {
-      console.error(`Service ${state.serviceName} already exists`);
-      process.exit(1);
+    if (!fs.existsSync(path.join(config.params.workDir, config.params.entrypoint))) {
+      throw new Error(`File ${config.params.entrypoint} not found`);
     }
 
-    const templateStr = fs.readFileSync(
-      path.join(__dirname, 'templates/forever.template'),
+    if (await systemd.serviceExists(config.serviceName)) {
+      throw new Error(`Service ${config.serviceName} already exists`);
+    }
+
+    const template = fs.readFileSync(
+      path.join(__dirname, config.templatePath),
       { encoding: 'utf8' },
     );
 
-    await systemd.createService(state.serviceName, template(templateStr, state.templateParams));
-    await systemd.enableService(state.serviceName);
-    await systemd.startService(state.serviceName);
+    await systemd.createService(
+      config.serviceName,
+      generateTemplate(template, config.params),
+    );
+    await systemd.enableService(config.serviceName);
+    await systemd.startService(config.serviceName);
   } catch (err) {
-    console.error(err);
+    if (err.code === 'MODULE_NOT_FOUND') {
+      console.error('No package.json found. Probably not in project root');
+    } else {
+      console.error(err.message);
+    }
     process.exit(1);
   }
 })();

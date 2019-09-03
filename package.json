@@ -1,6 +1,8 @@
 {
   "name": "systemd-servicify",
-  "bin": "index.js",
+  "bin": {
+    "servicify": "index.js"
+  },
   "version": "0.1.0",
   "description": "Turns node app into systemd service",
   "main": "index.js",
@@ -16,8 +18,8 @@
   "author": "kciepka",
   "homepage": "https://github.com/krzysztofciepka/systemd-servicify",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/krzysztofciepka/systemd-servicify.git"
+    "type": "git",
+    "url": "https://github.com/krzysztofciepka/systemd-servicify.git"
   },
   "license": "MIT",
   "devDependencies": {

@@ -1,4 +1,4 @@
-module.exports = function template(templateStr, options) {
+module.exports = function generateTemplate(templateStr, options) {
   if (!templateStr) {
     return '';
   }

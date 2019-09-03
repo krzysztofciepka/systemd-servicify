@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
@@ -12,8 +11,7 @@ function serviceExists(name) {
         if (err.code === 1) {
           resolve(false);
         } else {
-          console.error(err);
-          process.exit(1);
+          throw err;
         }
       });
   });
