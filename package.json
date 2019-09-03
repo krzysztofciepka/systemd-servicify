@@ -3,9 +3,10 @@
   "bin": {
     "servicify": "index.js"
   },
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Turns node app into systemd service",
   "main": "index.js",
+  "private": false,
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
