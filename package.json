@@ -3,7 +3,7 @@
   "bin": {
     "servicify": "index.js"
   },
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Turns node app into systemd service",
   "main": "index.js",
   "private": false,
